@@ -5,7 +5,7 @@
 
 # ActionAction
 
-A simple way to build and use Service Objects in Ruby.
+Simpler way to build and use Service Objects in Ruby.
 
 ## Installation
 
