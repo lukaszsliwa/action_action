@@ -1,8 +1,3 @@
-PATH
-  remote: .
-  specs:
-    action_action (4.0.1)
-
 GEM
   remote: https://rubygems.org/
   specs:
@@ -30,7 +25,6 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  action_action!
   activesupport (>= 3.0.1)
   i18n (~> 1.8.9)
   rake (~> 12.0)

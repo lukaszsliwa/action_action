@@ -1,7 +1,5 @@
 source "https://rubygems.org"
 
-gemspec
-
 gem 'activesupport', '>= 3.0.1'
 
 group :test do

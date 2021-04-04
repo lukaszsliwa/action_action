@@ -12,7 +12,7 @@ module ActionAction
       alias_method :attributes, :attr_accessor
 
       def perform(*args)
-        self.new.send(:perform_with_callbacks, *args)
+        new.perform_with_callbacks(*args)
       end
 
       def perform!(*args)
