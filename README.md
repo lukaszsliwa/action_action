@@ -12,7 +12,7 @@ Simpler way to build and use Service Objects in Ruby.
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'action_action', '~> 4.0.1'
+gem 'action_action', '~> 4.0.2'
 ```
 
 And then execute:
