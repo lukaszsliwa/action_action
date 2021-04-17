@@ -5,6 +5,7 @@ require 'action_action/version'
 require 'action_action/status'
 require 'action_action/statuses'
 require 'action_action/callbacks'
+require 'action_action/parameters'
 require 'action_action/base'
 require 'action_action/error'
 

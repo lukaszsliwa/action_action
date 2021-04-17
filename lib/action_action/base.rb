@@ -6,10 +6,26 @@ module ActionAction
     extend ActionAction::Callbacks
     include ActionAction::Statuses
 
-    attr_reader :status, :message, :value
+    attr_reader :status, :message, :result, :params
+
+    def initialize(params = {})
+      @params = params
+    end
 
     class << self
       alias_method :attributes, :attr_accessor
+
+      def require(params = {})
+        Parameters.new(self).require(params)
+      end
+      alias_method :set!, :require
+      alias_method :with!, :require
+      alias_method :require!, :require
+
+      def set(params = {})
+        Parameters.new(self, params).set(params)
+      end
+      alias_method :with, :set
 
       def perform(*args)
         new.perform_with_callbacks(*args)
@@ -23,10 +39,14 @@ module ActionAction
       end
     end
 
+    def perform(*args)
+      perform_with_callbacks(*args)
+    end
+
     def perform_without_callbacks(*args)
-      @value = perform(*args)
+      @result = perform(*args)
       success! if @status.nil?
-      @value
+      @result
     end
 
     def perform_with_callbacks(*args)

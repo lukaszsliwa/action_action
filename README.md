@@ -12,7 +12,7 @@ Simpler way to build and use Service Objects in Ruby.
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'action_action', '~> 4.0.2'
+gem 'action_action', '~> 4.0.3'
 ```
 
 And then execute:
@@ -24,15 +24,21 @@ And then execute:
 ```ruby
 # app/actions/my_action.rb
 class MyAction < ActionAction::Base
+  after_perform :notify
+  
   def perform
     # Your code here
+  end
+  
+  def notify
+    # after perform
   end
 end
 
 # app/controllers/my_controller.rb
 class MyController < ApplicationController
   def create
-    MyAction.perform
+    MyAction.set(user: current_user).perform
   end
 end
 ```
@@ -104,6 +110,66 @@ class UsersController < ApplicationController
   end
 end
 ```
+
+## Parameters
+
+You can set a parameter using `set`, `with` or `require`.
+`require` will raise an error if at least one parameter value is `nil`
+
+```ruby
+# app/actions/create_account.rb
+
+class CreateAccount < ActionAction::Base
+  after_perform :done, on: :success
+  
+  def perform
+    @account, @user = params[:account], params[:user]
+    @account = @user.accounts.build(params[:params])
+    if @account.save
+      success!
+    else
+      error!(message: @account.errors.full_messages)
+    end
+    @account
+  end
+  
+  def done
+    @user.user_accounts.create!(account: @account)
+  end
+end
+```
+
+
+```ruby
+# app/controllers/accounts_controller.rb
+
+class AccountsController < ApplicationController
+  def new
+    @account = Account.new  
+  end
+  
+  def create
+    context = CreateAccount.with(user: current_user, params: params_account).perform
+    @account = context.result
+    
+    respond_to do |format|
+      if context.success?
+        format.html { redirect_to account_path(@account) }
+      else
+        format.html { render action: :new }
+      end
+    end
+  end
+  
+  private
+  
+  def params_account
+    params.require(:account).permit(:name, :subdomain)
+  end
+end
+```
+
+Alternatively, use `set!`, `with!` if you would like to check if all parameters are present.
 
 ## Callbacks
 
