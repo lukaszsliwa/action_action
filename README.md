@@ -27,7 +27,7 @@ class MyAction < ActionAction::Base
   after_perform :notify
   
   def perform
-    # Your code here
+    # Do something with @user
   end
   
   def notify
@@ -71,24 +71,25 @@ class CreateUser < ActionAction::Base
   
   after_perform :send_email_on_success, on: :success
   
-  def perform(company, params)
-    self.user = company.users.build(params)
-    if self.user.save
+  def perform(user_params)
+    @user = @company.users.build(user_params)
+    if @user.save
       success!
     else
       error!
     end
+    @user
   end
   
   def send_email_on_success
-    UserMailer.with(user: self.user).welcome.deliver_later
+    UserMailer.with(user: @user).welcome.deliver_later
   end
 end
 
 # app/controllers/users_controller.rb
 class UsersController < ApplicationController
   def create
-    context = CreateUser.perform(current_company, params_user)
+    context = CreateUser.with(company: current_company).perform(user_params)
     
     respond_to do |format|
       if context.success?
@@ -101,7 +102,7 @@ class UsersController < ApplicationController
   
   private
   
-  def params_user
+  def user_params
     params.require(:user).permit(:first_name, :last_name, :email, :password, :password_confirmation)
   end
   
@@ -123,8 +124,7 @@ class CreateAccount < ActionAction::Base
   after_perform :done, on: :success
   
   def perform
-    @account, @user = params[:account], params[:user]
-    @account = @user.accounts.build(params[:params])
+    @account = @user.accounts.build(@account_params)
     if @account.save
       success!
     else
@@ -149,7 +149,7 @@ class AccountsController < ApplicationController
   end
   
   def create
-    context = CreateAccount.with(user: current_user, params: params_account).perform
+    context = CreateAccount.with(user: current_user, account_params: account_params).perform
     @account = context.result
     
     respond_to do |format|
@@ -163,7 +163,7 @@ class AccountsController < ApplicationController
   
   private
   
-  def params_account
+  def account_params
     params.require(:account).permit(:name, :subdomain)
   end
 end
@@ -191,8 +191,8 @@ class CreatePost < ActionAction::Base
   after_perform :run_success_callback, on: :success
   after_perform :run_error_callback, on: :error
   
-  def perform(user, params: {})
-    @post = user.posts.build(params)
+  def perform(user, data: {})
+    @post = user.posts.build(data)
     
     if @post.save
       success!(message: 'Post was successfully created.')
