@@ -90,7 +90,7 @@ RSpec.describe ActionAction::Base do
     end
 
     def go!
-      @value = { company: params[:company], param: params[:param]}
+      @value = { company: @company, param: params[:param]}
     end
   end
 

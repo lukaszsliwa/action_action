@@ -10,6 +10,9 @@ module ActionAction
 
     def initialize(params = {})
       @params = params
+      @params.map do |parameter, value|
+        instance_variable_set(:"@#{parameter}", value)
+      end
     end
 
     class << self
